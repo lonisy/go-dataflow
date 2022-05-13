@@ -4,6 +4,6 @@ go-dataflow 适用基于数据流附加业务逻辑的应用场景，亦适用�
 ## 安装
 
 ```shell
-go get github.com/lonisy/go-dataflow
+go get github.com/lonisy/go-dataflow@v1.0.1
 
 ```
