@@ -2,7 +2,6 @@ package dataflow
 
 import (
     "context"
-    "fmt"
     "log"
     "os"
     "os/signal"
@@ -94,10 +93,10 @@ func (s *Stage) Run() {
         }
     }
     if strings.Contains(os.Args[0], "Test") {
-        fmt.Println("Stage Run End")
+        log.Println("Stage Run End")
         time.Sleep(20 * time.Second)
-        s.Clear()
-        fmt.Println("Stage Run Wait after")
+        s.Stop()
+        log.Println("Stage Run Wait after")
     }
 }
 
@@ -110,35 +109,35 @@ func (s *Stage) Listen() {
         for si := range c {
             switch si {
             case syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT:
-                fmt.Println("\nService Stoping By signal:", si)
-                s.Clear()
+                log.Println("\nService Stoping By signal:", si)
+                s.Stop()
                 return
             case syscall.SIGUSR1:
-                fmt.Println("usr1", s)
+                log.Println("usr1", s)
             case syscall.SIGUSR2:
-                fmt.Println("usr2", s)
+                log.Println("usr2", s)
             default:
-                fmt.Println("other", s)
+                log.Println("other", s)
             }
         }
     }()
     s.Wg.Wait()
 }
 
-func (s *Stage) Clear() {
-    fmt.Println("Clear")
+func (s *Stage) Stop() {
+    log.Println("Stop")
     s.Cancel()
     time.Sleep(3 * time.Second)
     s.CloseChannel(s.WriteChan)
     if len(s.Stages) > 0 {
         for idx, Stage := range s.Stages {
-            fmt.Println("stage", idx, Stage.StageType)
+            log.Println("stage", idx, Stage.StageType)
             if Stage.ChanOn == true {
                 s.CloseChannel(Stage.WriteChan)
             }
         }
     }
-    fmt.Println("Clear end")
+    log.Println("Clear end")
     return
 }
 
