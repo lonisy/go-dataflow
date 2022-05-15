@@ -1,15 +1,15 @@
 package dataflow
 
 import (
-    "os/signal"
     "context"
+    "fmt"
+    "log"
+    "os"
+    "os/signal"
     "strings"
+    "sync"
     "syscall"
     "time"
-    "sync"
-    "log"
-    "fmt"
-    "os"
 )
 
 const (
@@ -76,7 +76,6 @@ func (s *Stage) Register(Callback CallbackType, Workers int, ChanLen int) *Stage
 }
 
 func (s *Stage) Run() {
-    fmt.Println(len(s.Stages))
     if len(s.Stages) > 0 {
         lastStage := s
         for _, Stage := range s.Stages {
@@ -109,7 +108,6 @@ func (s *Stage) Listen() {
         c := make(chan os.Signal)
         signal.Notify(c, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGUSR1, syscall.SIGUSR2)
         for si := range c {
-            fmt.Println(si)
             switch si {
             case syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT:
                 fmt.Println("\nService Stoping By signal:", si)
@@ -130,13 +128,11 @@ func (s *Stage) Listen() {
 func (s *Stage) Clear() {
     fmt.Println("Clear")
     s.Cancel()
-    // time.Sleep(time.Duration(5) * time.Second)
     time.Sleep(3 * time.Second)
     s.CloseChannel(s.WriteChan)
-
     if len(s.Stages) > 0 {
         for idx, Stage := range s.Stages {
-            fmt.Println(idx, Stage.StageType)
+            fmt.Println("stage", idx, Stage.StageType)
             if Stage.ChanOn == true {
                 s.CloseChannel(Stage.WriteChan)
             }
